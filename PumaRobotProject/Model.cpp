@@ -26,6 +26,7 @@ void Model::setupMesh()
 
 void Model::Draw(Shader& shader)
 {
+	shader.setMat4("model", model);
 	//draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -86,7 +87,36 @@ void Model::loadModel(std::string path)
 	setupMesh();
 }
 
+Model::Model()
+{
+	;
+}
 Model::Model(std::string path)
 {
 	loadModel(path);
+}
+
+void Model::Plane(float size, glm::mat4 position)
+{
+	model = position;
+	size /= 2.0f;
+	Vertex vertex;
+	vertex.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+	vertex.position = glm::vec3(-size, 0.0f, -size);
+	vertices.push_back(vertex);
+	vertex.position = glm::vec3(size, 0.0f, -size);
+	vertices.push_back(vertex);
+	vertex.position = glm::vec3(-size, 0.0f, size);
+	vertices.push_back(vertex);
+	vertex.position = glm::vec3(size, 0.0f, size);
+	vertices.push_back(vertex);
+
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(2);
+	indices.push_back(1);
+	indices.push_back(2);
+	indices.push_back(3);
+
+	setupMesh();
 }

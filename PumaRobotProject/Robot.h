@@ -14,12 +14,14 @@
 #include <assimp/postprocess.h>
 #include <stb_image.h>
 #include <iostream>
+#include <math.h>
 
 class Robot
 {
 public:
 	Robot();
 	void Draw(Shader& shader);
+	void InverseKinematics(glm::vec3 position, glm::vec3 normal);
 private:
 	void RotateJoints();
 	Model robotParts[6] =

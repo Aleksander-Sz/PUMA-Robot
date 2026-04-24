@@ -24,8 +24,11 @@ struct Vertex
 class Model
 {
 public:
+	Model();
 	Model(std::string path);
 	void Draw(Shader& shader);
+	void Plane(float size, glm::mat4 position);
+	glm::mat4 model = glm::mat4(1.0f);
 private:
 	// model data
 	std::vector<Vertex> vertices;

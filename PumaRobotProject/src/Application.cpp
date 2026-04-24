@@ -135,6 +135,9 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	Robot robot;
+	Model floor;
+	Model mirror;
+	floor.Plane(5.0f, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
 
 	// Lighting Shader
@@ -152,7 +155,12 @@ int main()
 
 	// Light properties
 	Light light = Light::PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.3f), glm::vec3(2.0f, 1.0f, 0.0f));
-
+	glm::vec3 targetPosition;
+	glm::vec3 targetNormal(0.0f, 1.0f, 0.0f);
+	float r = 0.5f;
+	glm::mat4 circleTranslationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.3f, 0.0f)) * glm::rotate(glm::mat4(1.0f), -0.785398163397448309615660845819875721f - 0.2f, glm::vec3(0.0f, 0.0f, 1.0f));
+	targetNormal = glm::vec3(circleTranslationMatrix * glm::vec4(targetNormal, 0.0f));
+	mirror.Plane(1.5f, circleTranslationMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.07f, 0.0f)));
 
 	int frame = 0;
 	glViewport(0, 0, windowWidth, windowHeight);
@@ -186,8 +194,15 @@ int main()
 		//material properties
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setFloat("material.shininess", 32.0f);
+		float now = glfwGetTime();
+		targetPosition.x = r * cosf(now);
+		targetPosition.y = 0.0f;
+		targetPosition.z = r * sinf(now);
+		targetPosition = glm::vec3(circleTranslationMatrix * glm::vec4(targetPosition, 1.0f));
+		robot.InverseKinematics(targetPosition, targetNormal);
 		robot.Draw(ourShader);
-		
+		floor.Draw(ourShader);
+		mirror.Draw(ourShader);
 		
 		//lightColor = glm::vec3(fmod(lastFrame, 5.0f) / 5.0f);
 		frame++;
