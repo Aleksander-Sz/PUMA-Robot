@@ -29,9 +29,7 @@ in vec3 normal;
 in vec3 fragPos;
 
 uniform vec3 viewPos;
-uniform int numLights;
-#define NR_LIGHTS 10
-uniform Light lights[NR_LIGHTS];
+uniform Light light;
 
 uniform Material material;
 
@@ -66,35 +64,34 @@ void main()
 	vec3 diffuseColor = vec3(1.0, 1.0, 1.0);
 	vec3 specularColor = vec3(1.0, 1.0, 1.0);
 	// ambient
-	vec3 ambient = diffuseColor * lights[0].ambient;
+	vec3 ambient = diffuseColor * light.ambient;
 	
 	vec3 normalizedNormal = normalize(normal);
 	vec3 totalColor = ambient;
-	for(int i = 0; i < numLights; i++)
-	{
+
 		vec4 directionAndAttenuation;
-		if(lights[i].type == 0)
+		if(light.type == 0)
 		{
-			directionAndAttenuation = CalcDirectionalLight(lights[i]);
+			directionAndAttenuation = CalcDirectionalLight(light);
 		}
-		else if(lights[i].type == 1)
+		else if(light.type == 1)
 		{
-			directionAndAttenuation = CalcPointLight(lights[i], fragPos);
+			directionAndAttenuation = CalcPointLight(light, fragPos);
 		}
-		else if(lights[i].type == 2)
+		else if(light.type == 2)
 		{
-			directionAndAttenuation = CalcSpotLight(lights[i], fragPos);
+			directionAndAttenuation = CalcSpotLight(light, fragPos);
 		}
 		// diffuse
 		float diff = max(dot(normalizedNormal, directionAndAttenuation.xyz), 0.0f);
-		vec3 diffuse = lights[i].diffuse * diff * diffuseColor;
+		vec3 diffuse = light.diffuse * diff * diffuseColor;
 		// specular
 		vec3 viewDir = normalize(viewPos - fragPos);
 		vec3 reflectDir = reflect(-directionAndAttenuation.xyz, normalizedNormal);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
-		vec3 specular = spec * lights[i].specular * specularColor;
+		vec3 specular = spec * light.specular * specularColor;
 		vec3 finalColor = (diffuse + specular) * directionAndAttenuation.w;
 		totalColor += finalColor;
-	}
+
 	FragColor = vec4(totalColor, 1.0f);
 }

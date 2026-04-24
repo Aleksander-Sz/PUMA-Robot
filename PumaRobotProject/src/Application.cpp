@@ -6,6 +6,7 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Model.h"
+#include "../Robot.h"
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -131,10 +132,9 @@ int main()
 	Shader ourShader("Shaders/VertexShader.glsl","Shaders/FragmentShader.glsl");
 	ourShader.use();
 
-	//loading model
-	Model ourModel("Models/mesh1.txt");
-
 	glEnable(GL_DEPTH_TEST);
+
+	Robot robot;
 
 
 	// Lighting Shader
@@ -151,12 +151,7 @@ int main()
 	// -----
 
 	// Light properties
-	std::vector<Light> lights;
-	lights.push_back(Light::DirectionalLight(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f), glm::vec3(1.0f, -0.5f, 0.0f)));
-	
-	lights.push_back(Light::PointLight(glm::vec3(0.0f, 0.0f, 0.3f), glm::vec3(0.3f), glm::vec3(2.0f, 1.0f, 0.0f)));
-	lights.push_back(Light::PointLight(glm::vec3(0.0f, 0.3f, 0.0f), glm::vec3(0.3f), glm::vec3(-2.0f, 1.0f, 0.0f)));
-	lights.push_back(Light::SpotLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.7f), camera.cameraPos, camera.cameraFront, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f))));
+	Light light = Light::PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.3f), glm::vec3(2.0f, 1.0f, 0.0f));
 
 
 	int frame = 0;
@@ -173,28 +168,25 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ourShader.setMat4("view", camera.view());
 		ourShader.setMat4("projection", camera.projection());
-		ourShader.setInt("numLights", lights.size());
-		lights[lights.size() - 1].UpdateFlashlight(camera); // Update spotlight to follow the camera
-		for (int i = 0; i < lights.size(); i++)
-		{
-			ourShader.setVec3( "lights[" + std::to_string(i) + "].ambient",     lights[i].ambient);
-			ourShader.setVec3( "lights[" + std::to_string(i) + "].diffuse",     lights[i].diffuse);
-			ourShader.setVec3( "lights[" + std::to_string(i) + "].specular",    lights[i].specular);
-			ourShader.setVec3( "lights[" + std::to_string(i) + "].position",    lights[i].position);
-			ourShader.setVec3( "lights[" + std::to_string(i) + "].direction",   lights[i].direction);
-			ourShader.setFloat("lights[" + std::to_string(i) + "].cutOff",      lights[i].cutOff);
-			ourShader.setFloat("lights[" + std::to_string(i) + "].outerCutOff", lights[i].outerCutOff);
-			ourShader.setInt(  "lights[" + std::to_string(i) + "].type",        lights[i].type); // 0: directional light, 1: point light, 2: spotlight
-			ourShader.setFloat("lights[" + std::to_string(i) + "].constant",    lights[i].constant);
-			ourShader.setFloat("lights[" + std::to_string(i) + "].linear",      lights[i].linear);
-			ourShader.setFloat("lights[" + std::to_string(i) + "].quadratic",   lights[i].quadratic);
-		}
+
+		ourShader.setVec3( "light.ambient",     light.ambient);
+		ourShader.setVec3( "light.diffuse",     light.diffuse);
+		ourShader.setVec3( "light.specular",    light.specular);
+		ourShader.setVec3( "light.position",    light.position);
+		ourShader.setVec3( "light.direction",   light.direction);
+		ourShader.setFloat("light.cutOff",      light.cutOff);
+		ourShader.setFloat("light.outerCutOff", light.outerCutOff);
+		ourShader.setInt(  "light.type",        light.type); // 0: directional light, 1: point light, 2: spotlight
+		ourShader.setFloat("light.constant",    light.constant);
+		ourShader.setFloat("light.linear",      light.linear);
+		ourShader.setFloat("light.quadratic",   light.quadratic);
+
 		ourShader.setMat4("model", glm::mat4(1.0f));
 		ourShader.setVec3("viewPos", camera.cameraPos);
 		//material properties
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setFloat("material.shininess", 32.0f);
-		ourModel.Draw(ourShader);
+		robot.Draw(ourShader);
 		
 		
 		//lightColor = glm::vec3(fmod(lastFrame, 5.0f) / 5.0f);
