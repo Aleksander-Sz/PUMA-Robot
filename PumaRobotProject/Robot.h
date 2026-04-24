@@ -21,6 +21,7 @@ public:
 	Robot();
 	void Draw(Shader& shader);
 private:
+	void RotateJoints();
 	Model robotParts[6] =
 	{
 		Model("Models/mesh1.txt"),
@@ -30,6 +31,8 @@ private:
 		Model("Models/mesh5.txt"),
 		Model("Models/mesh6.txt")
 	};
+	glm::mat4 modelMatrices[6];
+	float jointAngles[6] = { 0.0f };
 };
 #endif
 #pragma once
