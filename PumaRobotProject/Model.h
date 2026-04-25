@@ -29,6 +29,7 @@ public:
 	void Draw(Shader& shader);
 	void Plane(float size, glm::mat4 position);
 	void Cylinder(float radius, float lenght, glm::mat4 position);
+	void Room(float size, glm::mat4 position);
 	glm::mat4 model = glm::mat4(1.0f);
 private:
 	// model data

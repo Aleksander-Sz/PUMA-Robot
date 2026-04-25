@@ -135,8 +135,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	Robot robot;
-	Model floor;
-	floor.Plane(5.0f, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	Model room;
+	room.Room(8.0f, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0f, 0.0f)));
 	Model mirror;
 	Model cylinder;
 	cylinder.Cylinder(0.3f, 3.0f, glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.7f, -1.0f)), 3.14159f / 2.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -203,7 +203,7 @@ int main()
 		targetPosition = glm::vec3(circleTranslationMatrix * glm::vec4(targetPosition, 1.0f));
 		robot.InverseKinematics(targetPosition, targetNormal);
 		robot.Draw(ourShader);
-		floor.Draw(ourShader);
+		room.Draw(ourShader);
 		mirror.Draw(ourShader);
 		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
 		cylinder.Draw(ourShader);

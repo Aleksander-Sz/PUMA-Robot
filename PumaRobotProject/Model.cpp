@@ -98,6 +98,9 @@ Model::Model(std::string path)
 
 void Model::Plane(float size, glm::mat4 position)
 {
+	vertices.clear();
+	indices.clear();
+
 	model = position;
 	size /= 2.0f;
 	Vertex vertex;
@@ -123,6 +126,9 @@ void Model::Plane(float size, glm::mat4 position)
 
 void Model::Cylinder(float radius, float length, glm::mat4 position)
 {
+	vertices.clear();
+	indices.clear();
+
 	model = position;
 	for (size_t i = 0; i < 24; i++)
 	{
@@ -184,5 +190,74 @@ void Model::Cylinder(float radius, float length, glm::mat4 position)
 		indices.push_back(curr + 1);
 		indices.push_back(next + 1);
 	}
+	setupMesh();
+}
+
+void Model::Room(float size, glm::mat4 position)
+{
+	model = position;
+	size /= 2.0f;
+
+	vertices.clear();
+	indices.clear();
+
+	Vertex v;
+
+	// ---- FRONT (+Z)
+	v.normal = glm::vec3(0, 0, -1);
+	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
+
+	// ---- BACK (-Z)
+	v.normal = glm::vec3(0, 0, 1);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+
+	// ---- LEFT (-X)
+	v.normal = glm::vec3(1, 0, 0);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+
+	// ---- RIGHT (+X)
+	v.normal = glm::vec3(-1, 0, 0);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+
+	// ---- TOP (+Y)
+	v.normal = glm::vec3(0, -1, 0);
+	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+
+	// ---- BOTTOM (-Y)
+	v.normal = glm::vec3(0, 1, 0);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
+
+	// ---- INDICES (2 triangles per face)
+	for (int i = 0; i < 6; i++)
+	{
+		int base = i * 4;
+
+		indices.push_back(base + 0);
+		indices.push_back(base + 1);
+		indices.push_back(base + 2);
+
+		indices.push_back(base + 0);
+		indices.push_back(base + 2);
+		indices.push_back(base + 3);
+	}
+
 	setupMesh();
 }
