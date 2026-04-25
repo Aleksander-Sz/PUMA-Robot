@@ -120,3 +120,69 @@ void Model::Plane(float size, glm::mat4 position)
 
 	setupMesh();
 }
+
+void Model::Cylinder(float radius, float length, glm::mat4 position)
+{
+	model = position;
+	for (size_t i = 0; i < 24; i++)
+	{
+		float x = radius * std::sin(2.0f * 3.14159f * i / 24.0f);
+		float z = radius * std::cos(2.0f * 3.14159f * i / 24.0f);
+		Vertex newVertex;
+		newVertex.position = glm::vec3(x, -length / 2.0f, z);
+		newVertex.normal = glm::normalize(glm::vec3(x, 0.0f, z));
+		vertices.push_back(newVertex);
+		newVertex.position.y = length / 2.0f;
+		vertices.push_back(newVertex);
+		indices.push_back(i * 2);
+		indices.push_back(i * 2 + 1);
+		indices.push_back((i + 1) % 24 * 2);
+		indices.push_back(i * 2 + 1);
+		indices.push_back((i + 1) % 24 * 2);
+		indices.push_back((i + 1) % 24 * 2 + 1);
+	}
+	Vertex bottomCenter;
+	bottomCenter.position = glm::vec3(0.0f, -length / 2.0f, 0.0f);
+	bottomCenter.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+	Vertex topCenter;
+	topCenter.position = glm::vec3(0.0f, length / 2.0f, 0.0f);
+	topCenter.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+	size_t baseIndex = vertices.size();
+
+	// centers
+	vertices.push_back(bottomCenter); // baseIndex
+	vertices.push_back(topCenter);    // baseIndex + 1
+
+	// ring
+	for (size_t i = 0; i < 24; i++)
+	{
+		float x = radius * std::sin(2.0f * 3.14159f * i / 24.0f);
+		float z = radius * std::cos(2.0f * 3.14159f * i / 24.0f);
+
+		Vertex v;
+
+		v.position = glm::vec3(x, -length / 2.0f, z);
+		v.normal = glm::vec3(0, -1, 0);
+		vertices.push_back(v); // baseIndex + 2 + i*2
+
+		v.position = glm::vec3(x, length / 2.0f, z);
+		v.normal = glm::vec3(0, 1, 0);
+		vertices.push_back(v); // baseIndex + 3 + i*2
+	}
+	for (size_t i = 0; i < 24; i++)
+	{
+		size_t curr = baseIndex + 2 + i * 2;
+		size_t next = baseIndex + 2 + ((i + 1) % 24) * 2;
+
+		// bottom cap (flip winding if needed)
+		indices.push_back(baseIndex);
+		indices.push_back(next);
+		indices.push_back(curr);
+
+		// top cap
+		indices.push_back(baseIndex + 1);
+		indices.push_back(curr + 1);
+		indices.push_back(next + 1);
+	}
+	setupMesh();
+}

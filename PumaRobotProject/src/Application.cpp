@@ -136,8 +136,10 @@ int main()
 
 	Robot robot;
 	Model floor;
-	Model mirror;
 	floor.Plane(5.0f, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	Model mirror;
+	Model cylinder;
+	cylinder.Cylinder(0.3f, 3.0f, glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.7f, -1.0f)), 3.14159f / 2.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
 
 
 	// Lighting Shader
@@ -203,6 +205,8 @@ int main()
 		robot.Draw(ourShader);
 		floor.Draw(ourShader);
 		mirror.Draw(ourShader);
+		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
+		cylinder.Draw(ourShader);
 		
 		//lightColor = glm::vec3(fmod(lastFrame, 5.0f) / 5.0f);
 		frame++;
