@@ -115,11 +115,11 @@ void Model::Plane(float size, glm::mat4 position)
 	vertices.push_back(vertex);
 
 	indices.push_back(0);
-	indices.push_back(1);
 	indices.push_back(2);
 	indices.push_back(1);
-	indices.push_back(2);
 	indices.push_back(3);
+	indices.push_back(1);
+	indices.push_back(2);
 
 	setupMesh();
 }
@@ -141,8 +141,8 @@ void Model::Cylinder(float radius, float length, glm::mat4 position)
 		newVertex.position.y = length / 2.0f;
 		vertices.push_back(newVertex);
 		indices.push_back(i * 2);
-		indices.push_back(i * 2 + 1);
 		indices.push_back((i + 1) % 24 * 2);
+		indices.push_back(i * 2 + 1);
 		indices.push_back(i * 2 + 1);
 		indices.push_back((i + 1) % 24 * 2);
 		indices.push_back((i + 1) % 24 * 2 + 1);
@@ -205,45 +205,45 @@ void Model::Room(float size, glm::mat4 position)
 
 	// ---- FRONT (+Z)
 	v.normal = glm::vec3(0, 0, -1);
-	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
-	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
-	v.position = glm::vec3(size, size, size); vertices.push_back(v);
 	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
 
 	// ---- BACK (-Z)
 	v.normal = glm::vec3(0, 0, 1);
-	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
 	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
 
 	// ---- LEFT (-X)
 	v.normal = glm::vec3(1, 0, 0);
-	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
-	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
 	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
 
 	// ---- RIGHT (+X)
 	v.normal = glm::vec3(-1, 0, 0);
-	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
-	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
 	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
 
 	// ---- TOP (+Y)
 	v.normal = glm::vec3(0, -1, 0);
-	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
-	v.position = glm::vec3(size, size, size); vertices.push_back(v);
-	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
 	v.position = glm::vec3(-size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, -size); vertices.push_back(v);
+	v.position = glm::vec3(size, size, size); vertices.push_back(v);
+	v.position = glm::vec3(-size, size, size); vertices.push_back(v);
 
 	// ---- BOTTOM (-Y)
 	v.normal = glm::vec3(0, 1, 0);
-	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
-	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
 	v.position = glm::vec3(-size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, size); vertices.push_back(v);
+	v.position = glm::vec3(size, -size, -size); vertices.push_back(v);
+	v.position = glm::vec3(-size, -size, -size); vertices.push_back(v);
 
 	// ---- INDICES (2 triangles per face)
 	for (int i = 0; i < 6; i++)

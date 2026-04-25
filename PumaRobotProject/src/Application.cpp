@@ -133,6 +133,8 @@ int main()
 	ourShader.use();
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_CULL_FACE);
 
 	Robot robot;
 	Model room;
@@ -164,6 +166,9 @@ int main()
 	targetNormal = glm::vec3(circleTranslationMatrix * glm::vec4(targetNormal, 0.0f));
 	mirror.Plane(1.5f, circleTranslationMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.07f, 0.0f)));
 
+	// Mirrored world matrix
+	glm::mat4 mirroredWorldMatrix = circleTranslationMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)) * glm::inverse(circleTranslationMatrix);
+
 	int frame = 0;
 	glViewport(0, 0, windowWidth, windowHeight);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -175,7 +180,8 @@ int main()
 		ourShader.use();
 		glClearColor(0.0f, 0.1f, 0.0f, 1.0f);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glStencilMask(0xFF);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		ourShader.setMat4("view", camera.view());
 		ourShader.setMat4("projection", camera.projection());
 
@@ -202,9 +208,50 @@ int main()
 		targetPosition.z = r * sinf(now);
 		targetPosition = glm::vec3(circleTranslationMatrix * glm::vec4(targetPosition, 1.0f));
 		robot.InverseKinematics(targetPosition, targetNormal);
+
+		// First marking the mirror in the stencil buffer
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+
+		mirror.Draw(ourShader);
+
+		// Rendering the mirrored scene
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+
+		glStencilMask(0x00);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+		glCullFace(GL_FRONT);
+
+		ourShader.setMat4("view", camera.view() * mirroredWorldMatrix);
+
 		robot.Draw(ourShader);
 		room.Draw(ourShader);
+		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
+		cylinder.Draw(ourShader);
+
+		glCullFace(GL_BACK);
+
+		// Rendering the scene normally
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0x00);
+
+		ourShader.setMat4("view", camera.view());
+
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		mirror.Draw(ourShader);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+		robot.Draw(ourShader);
+		room.Draw(ourShader);
 		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
 		cylinder.Draw(ourShader);
 		
