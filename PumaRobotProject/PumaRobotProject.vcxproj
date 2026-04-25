@@ -147,6 +147,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Particles.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -155,12 +156,15 @@
     <None Include="Shaders\FragmentShader.glsl" />
     <None Include="Shaders\LightsFragmentShader.glsl" />
     <None Include="Shaders\LightsVertexShader.glsl" />
+    <None Include="Shaders\ParticleFragmentShader.glsl" />
+    <None Include="Shaders\ParticleVertexShader.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Particles.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>

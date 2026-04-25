@@ -7,6 +7,7 @@
 #include "../Light.h"
 #include "../Model.h"
 #include "../Robot.h"
+#include "../Particles.h"
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -140,9 +141,10 @@ int main()
 	Model room;
 	room.Room(8.0f, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0f, 0.0f)));
 	Model mirror;
+	Model mirrorBack;
 	Model cylinder;
 	cylinder.Cylinder(0.3f, 3.0f, glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.7f, -1.0f)), 3.14159f / 2.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
-
+	ParticleSystem particles;
 
 	// Lighting Shader
 	// point light cube
@@ -165,6 +167,7 @@ int main()
 	glm::mat4 circleTranslationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.3f, 0.0f)) * glm::rotate(glm::mat4(1.0f), -0.785398163397448309615660845819875721f - 0.2f, glm::vec3(0.0f, 0.0f, 1.0f));
 	targetNormal = glm::vec3(circleTranslationMatrix * glm::vec4(targetNormal, 0.0f));
 	mirror.Plane(1.5f, circleTranslationMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.07f, 0.0f)));
+	mirrorBack.Plane(1.5f, circleTranslationMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.07f, 0.0f)) * glm::rotate(glm::mat4(1.0f), 3.14159f, glm::vec3(0.0f, 0.0f, 1.0f)));
 
 	// Mirrored world matrix
 	glm::mat4 mirroredWorldMatrix = circleTranslationMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)) * glm::inverse(circleTranslationMatrix);
@@ -252,8 +255,13 @@ int main()
 
 		robot.Draw(ourShader);
 		room.Draw(ourShader);
+		mirrorBack.Draw(ourShader);
 		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
 		cylinder.Draw(ourShader);
+
+		//Particles
+		particles.Update(targetPosition);
+		particles.Draw(camera.projection() * camera.view());
 		
 		//lightColor = glm::vec3(fmod(lastFrame, 5.0f) / 5.0f);
 		frame++;
