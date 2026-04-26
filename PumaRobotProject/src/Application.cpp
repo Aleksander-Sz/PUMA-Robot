@@ -238,6 +238,8 @@ int main()
 		room.Draw(ourShader);
 		ourShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
 		cylinder.Draw(ourShader);
+		particles.Draw(camera.projection() * camera.view());
+		ourShader.use();
 
 		glCullFace(GL_BACK);
 
@@ -260,7 +262,7 @@ int main()
 		cylinder.Draw(ourShader);
 
 		//Particles
-		particles.Update(targetPosition);
+		particles.Update(targetPosition, circleTranslationMatrix);
 		particles.Draw(camera.projection() * camera.view());
 		
 		//lightColor = glm::vec3(fmod(lastFrame, 5.0f) / 5.0f);

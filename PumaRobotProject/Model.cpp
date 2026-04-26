@@ -26,6 +26,7 @@ void Model::setupMesh()
 
 void Model::Draw(Shader& shader)
 {
+	shader.use();
 	shader.setMat4("model", model);
 	//draw mesh
 	glBindVertexArray(VAO);

@@ -17,19 +17,21 @@
 #include <fstream>
 #include "Model.h"
 
-#define SPARK_LENGHT 0.1f
+#define SPARK_LENGHT 0.05f
 
 class Particle
 {
 public:
-	Particle(glm::vec3 origin);
+	Particle(glm::vec3 origin, glm::mat4 normalMatrix);
 	void Draw(Shader& shader);
 	void Update(float deltaTime);
+	bool isDead();
 private:
 	glm::vec3 position;
 	glm::vec3 velocity;
 	static unsigned int VAO, VBO, EBO;
 	static void setupMesh();
+	double deathTime = glfwGetTime() + 2.0f;
 };
 
 class ParticleSystem
@@ -37,11 +39,12 @@ class ParticleSystem
 public:
 	ParticleSystem();
 	void Draw(glm::mat4 viewProjectionMatrix);
-	void Update(glm::vec3 origin);
+	void Update(glm::vec3 origin, glm::mat4 transformationMatrix);
 private:
 	Shader shader = Shader("Shaders/ParticleVertexShader.glsl", "Shaders/ParticleFragmentShader.glsl");
 	std::vector<Particle> particles;
 	double lastTime = glfwGetTime();
+	unsigned int particleLimit = 500;
 };
 
 #endif

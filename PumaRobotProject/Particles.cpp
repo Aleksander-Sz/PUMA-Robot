@@ -1,16 +1,17 @@
 #include "Particles.h"
 
-Particle::Particle(glm::vec3 origin)
+Particle::Particle(glm::vec3 origin, glm::mat4 normalMatrix)
 {
 	setupMesh();
 	position = origin;
 	float theta = ((float)rand() / RAND_MAX) * 2.0f * 3.1415926f;
-	float phi = ((float)rand() / RAND_MAX) * 0.5f * 3.1415926f; // [0, π/2]
+	float phi = ((float)rand() / RAND_MAX) * 0.25f * 3.1415926f + 3.1415926f * 0.25f; // [0, π/2]
 
 	float x = cos(theta) * sin(phi);
 	float y = cos(phi);
 	float z = sin(theta) * sin(phi);
 	velocity = glm::vec3(x, y, z);
+	velocity = glm::vec3(normalMatrix * glm::vec4(velocity, 0.0f));
 	//glm::mat4 rotation = glm::rotate(glm::rotate(), angle2, glm:vec3())
 }
 
@@ -30,11 +31,20 @@ void Particle::Draw(Shader& shader)
 void Particle::Update(float deltaTime)
 {
 	position += velocity * deltaTime;
-	velocity.y -= 1.0f * deltaTime;
+	velocity.y -= 2.0f * deltaTime;
+}
+
+bool Particle::isDead()
+{
+	return (glfwGetTime() > deathTime ? true : false);
 }
 
 void Particle::setupMesh()
 {
+	static bool alreadyDone = false;
+	if (alreadyDone)
+		return;
+	alreadyDone = true;
 	std::vector<int> ids;
 	ids.push_back(0);
 	ids.push_back(1);
@@ -82,18 +92,22 @@ void ParticleSystem::Draw(glm::mat4 viewProjectionMatrix)
 	}
 }
 
-void ParticleSystem::Update(glm::vec3 origin)
+void ParticleSystem::Update(glm::vec3 origin, glm::mat4 transformationMatrix)
 {
-	static int counter;
-	counter++;
-	counter = counter % 3;
-	if(counter == 0)
-		particles.push_back(Particle(origin));
+	if (particles.size() < particleLimit)
+	{
+		particles.push_back(Particle(origin, transformationMatrix));
+	}
 	double currentTime = glfwGetTime();
 	double deltaTime = currentTime - lastTime;
 	lastTime = currentTime;
 	for (size_t i = 0; i < particles.size(); i++)
 	{
 		particles[i].Update(deltaTime);
+		if (particles[i].isDead())
+		{
+			particles.erase(particles.begin() + i);
+			i--;
+		}
 	}
 }
