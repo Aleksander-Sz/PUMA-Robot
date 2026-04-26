@@ -5,6 +5,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <GLFW/glfw3.h>
 #include <vector>
 #include <string>
 #include "Shader.h"
@@ -15,6 +16,8 @@
 #include <iostream>
 #include <fstream>
 #include "Model.h"
+
+#define SPARK_LENGHT 0.1f
 
 class Particle
 {
@@ -38,6 +41,7 @@ public:
 private:
 	Shader shader = Shader("Shaders/ParticleVertexShader.glsl", "Shaders/ParticleFragmentShader.glsl");
 	std::vector<Particle> particles;
+	double lastTime = glfwGetTime();
 };
 
 #endif
