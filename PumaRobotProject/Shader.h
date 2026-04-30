@@ -15,7 +15,7 @@ public:
 	// the program ID
 	unsigned int ID;
 	// constructor reads and builds the shader
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const std::string& vertexPath, const std::string& fragmentPath);
 	// use/activate the shader
 	void use();
 	// utility uniform functions

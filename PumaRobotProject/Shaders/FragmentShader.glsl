@@ -1,8 +1,7 @@
 #version 330 core
 
 struct Material {
-	sampler2D texture_diffuse1;
-	sampler2D texture_specular1;
+	vec3 specular;
 	float shininess;
 };
 struct Light {
@@ -27,11 +26,28 @@ in vec4 vertexColor;
 in vec2 texCoords;
 in vec3 normal;
 in vec3 fragPos;
+flat in int surfaceType;
 
 uniform vec3 viewPos;
 uniform Light light;
 
 uniform Material material;
+uniform vec3 color;
+uniform float alpha;
+uniform bool useMetalSheetTex;
+uniform sampler2D metalSheetTex;
+uniform vec3 mirrorOrigin;
+uniform vec3 mirrorUAxis;
+uniform vec3 mirrorVAxis;
+uniform float mirrorSize;
+uniform bool useRoomTex;
+uniform sampler2D wallTex;
+uniform sampler2D floorTex;
+uniform float wallTexScale;
+uniform float floorTexScale;
+uniform float ceilingTexScale;
+uniform float floorUvRotation;
+uniform float floorUvShear;
 
 vec4 CalcPointLight(Light inLight, vec3 inFragPos)
 {
@@ -60,38 +76,60 @@ vec4 CalcSpotLight(Light inLight, vec3 inFragPos)
 
 void main()
 {
-	//texture
-	vec3 diffuseColor = vec3(1.0, 1.0, 1.0);
-	vec3 specularColor = vec3(1.0, 1.0, 1.0);
-	// ambient
+	vec3 N = normalize(normal);
+	vec3 albedo = color;
+	vec3 roomSpecMap = vec3(1.0);
+	if (useMetalSheetTex)
+	{
+		vec3 rel = fragPos - mirrorOrigin;
+		float u = dot(rel, mirrorUAxis) / mirrorSize + 0.5;
+		float v = dot(rel, mirrorVAxis) / mirrorSize + 0.5;
+		vec3 texAlbedo = texture(metalSheetTex, vec2(u, v)).rgb;
+		albedo *= texAlbedo;
+	}
+	if (useRoomTex)
+	{
+		vec2 uv;
+		if (surfaceType == 1)
+		{
+			uv = texCoords * ceilingTexScale;
+		}
+		else if (surfaceType == 2)
+		{
+			uv = texCoords * ceilingTexScale;
+		}
+		else
+		{
+			uv = texCoords * wallTexScale;
+		}
+		albedo *= texture(wallTex, uv).rgb;
+		roomSpecMap = texture(floorTex, uv).rgb;
+	}
+	vec3 diffuseColor = albedo;
+	vec3 specularCoeff = material.specular * roomSpecMap;
 	vec3 ambient = diffuseColor * light.ambient;
-	
-	vec3 normalizedNormal = normalize(normal);
+
 	vec3 totalColor = ambient;
 
-		vec4 directionAndAttenuation;
-		if(light.type == 0)
-		{
-			directionAndAttenuation = CalcDirectionalLight(light);
-		}
-		else if(light.type == 1)
-		{
-			directionAndAttenuation = CalcPointLight(light, fragPos);
-		}
-		else if(light.type == 2)
-		{
-			directionAndAttenuation = CalcSpotLight(light, fragPos);
-		}
-		// diffuse
-		float diff = max(dot(normalizedNormal, directionAndAttenuation.xyz), 0.0f);
-		vec3 diffuse = light.diffuse * diff * diffuseColor;
-		// specular
-		vec3 viewDir = normalize(viewPos - fragPos);
-		vec3 reflectDir = reflect(-directionAndAttenuation.xyz, normalizedNormal);
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
-		vec3 specular = spec * light.specular * specularColor;
-		vec3 finalColor = (diffuse + specular) * directionAndAttenuation.w;
-		totalColor += finalColor;
+	vec4 directionAndAttenuation;
+	if (light.type == 0)
+		directionAndAttenuation = CalcDirectionalLight(light);
+	else if (light.type == 1)
+		directionAndAttenuation = CalcPointLight(light, fragPos);
+	else if (light.type == 2)
+		directionAndAttenuation = CalcSpotLight(light, fragPos);
 
-	FragColor = vec4(totalColor, 1.0f);
+	vec3 L = directionAndAttenuation.xyz;
+	float diff = max(dot(N, L), 0.0);
+	vec3 diffuse = light.diffuse * diff * diffuseColor;
+
+	vec3 V = normalize(viewPos - fragPos);
+	vec3 H = normalize(L + V);
+	float spec = pow(max(dot(N, H), 0.0), material.shininess);
+	vec3 specular = spec * light.specular * specularCoeff;
+
+	vec3 lit = (diffuse + specular) * directionAndAttenuation.w;
+	totalColor += lit;
+
+	FragColor = vec4(totalColor, alpha);
 }

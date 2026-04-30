@@ -27,6 +27,13 @@ void Robot::RotateJoints()
 	modelMatrices[5] = modelMatrices[4] * glm::translate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-1.72f, 0.27f, 0.0f)), jointAngles[5], glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(1.72f, -0.27f, 0.0f));
 }
 
+void Robot::AppendShadowVolumes(const glm::vec3& lightWorld, std::vector<glm::vec4>& triangleVerts)
+{
+	RotateJoints();
+	for (size_t i = 0; i < 6; i++)
+		robotParts[i].AppendShadowVolumes(modelMatrices[i], lightWorld, triangleVerts);
+}
+
 void Robot::InverseKinematics(glm::vec3 position, glm::vec3 normal)
 {
 	float l1 = .91f, l2 = .81f, l3 = .33f, dy = .27f, dz = .26f;

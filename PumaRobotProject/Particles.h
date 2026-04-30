@@ -41,7 +41,7 @@ public:
 	void Draw(glm::mat4 viewProjectionMatrix);
 	void Update(glm::vec3 origin, glm::mat4 transformationMatrix);
 private:
-	Shader shader = Shader("Shaders/ParticleVertexShader.glsl", "Shaders/ParticleFragmentShader.glsl");
+	Shader shader;
 	std::vector<Particle> particles;
 	double lastTime = glfwGetTime();
 	unsigned int particleLimit = 500;

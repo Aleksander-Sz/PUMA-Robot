@@ -19,6 +19,8 @@ glm::mat4 Camera::view()
 glm::mat4 Camera::projection()
 {
 	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(zoom), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
+	// Slightly larger near plane reduces shadow-volume / mirror artifacts from aggressive
+	// near clipping without much visible impact in this room scale.
+	projection = glm::perspective(glm::radians(zoom), (float)windowWidth / (float)windowHeight, 0.25f, 100.0f);
 	return projection;
 }

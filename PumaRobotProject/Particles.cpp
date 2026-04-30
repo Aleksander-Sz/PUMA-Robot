@@ -1,4 +1,5 @@
 #include "Particles.h"
+#include "Paths.h"
 
 Particle::Particle(glm::vec3 origin, glm::mat4 normalMatrix)
 {
@@ -20,11 +21,13 @@ void Particle::Draw(Shader& shader)
 	shader.setVec3("top", position);
 	glm::vec3 bottom = position + glm::normalize(velocity) * SPARK_LENGHT;
 	shader.setVec3("bottom", bottom);
-	//draw mesh
+	float lifeLeft = static_cast<float>((deathTime - glfwGetTime()) / 2.0);
+	if (lifeLeft < 0.0f) lifeLeft = 0.0f;
+	if (lifeLeft > 1.0f) lifeLeft = 1.0f;
+	shader.setFloat("sparkAlpha", lifeLeft);
 	glBindVertexArray(VAO);
 	glLineWidth(5);
 	glDrawArrays(GL_LINES, 0, 2);
-	//glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -77,19 +80,26 @@ unsigned int Particle::VAO = 0;
 unsigned int Particle::EBO = 0;
 
 ParticleSystem::ParticleSystem()
+	: shader(
+		pumaResolveAsset("Shaders/ParticleVertexShader.glsl"),
+		pumaResolveAsset("Shaders/ParticleFragmentShader.glsl"))
 {
 	srand(time(0));
 }
 
 void ParticleSystem::Draw(glm::mat4 viewProjectionMatrix)
 {
-    // make sure the shader program is active before setting uniforms / drawing
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDepthMask(GL_FALSE);
 	shader.use();
 	shader.setMat4("viewProjection", viewProjectionMatrix);
 	for (size_t i = 0; i < particles.size(); i++)
 	{
 		particles[i].Draw(shader);
 	}
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 }
 
 void ParticleSystem::Update(glm::vec3 origin, glm::mat4 transformationMatrix)
